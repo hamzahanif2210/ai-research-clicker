@@ -1,0 +1,175 @@
+/* Dark mode overrides. Toggled via the "dark-mode" class on <html>,
+   set by js/app.js (ThemeService) and mirrored to localStorage so the
+   theme choice survives a reload without a light-mode flash. */
+
+html.dark-mode {
+  background: #14161d;
+}
+
+html.dark-mode body {
+  background: #14161d;
+  color: #d8d9de;
+}
+
+html.dark-mode a {
+  color: #7fa8ff;
+}
+html.dark-mode a:hover,
+html.dark-mode a:focus {
+  color: #a6c2ff;
+}
+
+/* Navbar */
+html.dark-mode .navbar-default {
+  background: #1a1d27;
+  border-color: #2a2e3b;
+}
+html.dark-mode .navbar-default .navbar-brand,
+html.dark-mode .navbar-default .navbar-nav > li > a,
+html.dark-mode .navbar-default .navbar-text {
+  color: #d8d9de;
+}
+html.dark-mode .navbar-default .navbar-nav > li > a:hover,
+html.dark-mode .navbar-default .navbar-nav > li > a:focus,
+html.dark-mode .navbar-default .navbar-toggle {
+  color: #ffffff;
+  background: #232733;
+}
+html.dark-mode .navbar-default .navbar-toggle .icon-bar {
+  background: #d8d9de;
+}
+html.dark-mode .dropdown-menu {
+  background: #1f2330;
+  border-color: #2a2e3b;
+}
+html.dark-mode .dropdown-menu > li > a {
+  color: #d8d9de;
+}
+html.dark-mode .dropdown-menu > li > a:hover,
+html.dark-mode .dropdown-menu > li > a:focus {
+  background: #2a2e3b;
+  color: #ffffff;
+}
+
+/* Panels (Research / HR / Upgrades columns) */
+html.dark-mode .panel,
+html.dark-mode .panel-default {
+  background: #1a1d27;
+  border-color: #2a2e3b;
+}
+html.dark-mode .panel-default > .panel-heading {
+  background: #1f2330;
+  border-color: #2a2e3b;
+  color: #d8d9de;
+}
+html.dark-mode .panel-title,
+html.dark-mode .media-heading,
+html.dark-mode h1, html.dark-mode h2, html.dark-mode h3,
+html.dark-mode h4, html.dark-mode h5, html.dark-mode h6 {
+  color: #eceef2;
+}
+html.dark-mode .panel-body p,
+html.dark-mode .media-body p,
+html.dark-mode .small,
+html.dark-mode small {
+  color: #a9acb8;
+}
+html.dark-mode .media-list > .media {
+  border-bottom: 1px solid #262a37;
+}
+
+/* Tabs (mobile layout) */
+html.dark-mode .nav-tabs {
+  border-color: #2a2e3b;
+}
+html.dark-mode .nav-tabs > li > a {
+  color: #d8d9de;
+  background: #1a1d27;
+  border-color: #2a2e3b;
+}
+html.dark-mode .nav-tabs > li.active > a,
+html.dark-mode .nav-tabs > li.active > a:hover,
+html.dark-mode .nav-tabs > li.active > a:focus {
+  background: #232733;
+  border-color: #2a2e3b;
+  color: #ffffff;
+}
+
+/* Status row + lab name field */
+html.dark-mode .status strong {
+  color: #eceef2;
+}
+html.dark-mode #labname {
+  background: transparent;
+  color: #eceef2;
+}
+
+/* Modals */
+html.dark-mode .modal-content {
+  background: #1a1d27;
+  border-color: #2a2e3b;
+  color: #d8d9de;
+}
+html.dark-mode .modal-header,
+html.dark-mode .modal-footer {
+  border-color: #2a2e3b;
+}
+html.dark-mode .modal-title {
+  color: #eceef2;
+}
+html.dark-mode .close {
+  color: #eceef2;
+  text-shadow: none;
+  opacity: 0.7;
+}
+html.dark-mode .close:hover {
+  opacity: 1;
+}
+
+/* Forms */
+html.dark-mode .form-control {
+  background: #14161d;
+  border-color: #333a4d;
+  color: #eceef2;
+}
+html.dark-mode .form-control:focus {
+  border-color: #5b8cff;
+  box-shadow: none;
+}
+html.dark-mode label {
+  color: #d8d9de;
+}
+
+/* Buttons: keep contextual colors (primary/info/success) as-is, just
+   restyle the neutral ones so they don't look washed out. */
+html.dark-mode .btn-default {
+  background: #232733;
+  border-color: #333a4d;
+  color: #d8d9de;
+}
+html.dark-mode .btn-default:hover,
+html.dark-mode .btn-default:focus {
+  background: #2a2e3b;
+  color: #ffffff;
+}
+
+/* Alerts (achievements + info toasts) */
+html.dark-mode .alert-info {
+  background: #1f2b3d;
+  border-color: #2c4463;
+  color: #cfe0f5;
+}
+html.dark-mode .alert-success {
+  background: #16332a;
+  border-color: #1f4d3d;
+  color: #cdeee0;
+}
+
+/* Scrollbar-y containers keep transparent track in dark mode */
+html.dark-mode .scrollable::-webkit-scrollbar-track {
+  background: #1a1d27;
+}
+
+/* The research/upgrade/worker icons ship as light-card PNGs by default;
+   ThemeService swaps their src to the "-dark" variant, which already
+   carries a matching dark card background - no filter needed here. */

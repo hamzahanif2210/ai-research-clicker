@@ -13,6 +13,21 @@
   var allObjects = game.allObjects;
   var lastSaved;
 
+  // Wipes game progress on restart, but keeps the personal-best scoreboard
+  // and the dark-mode preference - those are meant to survive a restart,
+  // ObjectStorage.clear() otherwise wipes localStorage indiscriminately.
+  var clearProgress = function() {
+    var scoreboard = ObjectStorage.load('scoreboard');
+    var darkMode = ObjectStorage.load('darkMode');
+    ObjectStorage.clear();
+    if (scoreboard) {
+      ObjectStorage.save('scoreboard', scoreboard);
+    }
+    if (darkMode !== null) {
+      ObjectStorage.save('darkMode', darkMode);
+    }
+  };
+
   var app = angular.module('particleClicker', []);
 
   app.filter('niceNumber', ['$filter', function($filter) {
@@ -75,7 +90,7 @@
     }, 1000);
   }]);
 
-  app.controller('ResearchController', ['$compile', function($compile) {
+  app.controller('ResearchController', ['$compile', 'ThemeService', function($compile, ThemeService) {
     this.research = research;
     this.isVisible = function(item) {
       return item.isVisible(lab);
@@ -93,6 +108,12 @@
     this.showInfo = function(r) {
       UI.showModal(r.name, r.getInfo());
       UI.showLevels(r.state.level);
+    };
+    // Research icons ship as matched light/dark PNG pairs
+    // (assets/icons/png/<name>.png and <name>-dark.png) - swap in the dark
+    // variant whenever dark mode is on.
+    this.icon = function(path) {
+      return ThemeService.dark ? path.replace(/\.png$/, '-dark.png') : path;
     };
   }]);
 
@@ -149,7 +170,7 @@
       if (window.confirm(
         'Do you really want to restart the game? All progress will be lost.'
       )) {
-        ObjectStorage.clear();
+        clearProgress();
         window.location.reload(true);
       }
     };
@@ -221,7 +242,7 @@
       if (window.confirm(
         'Do you really want to restart? All progress will be lost.'
       )) {
-        ObjectStorage.clear();
+        clearProgress();
         window.location.reload(true);
       }
     };
@@ -230,6 +251,93 @@
     }, function(show) {
       $('#continue-modal').modal(show ? {show: true, backdrop: 'static', keyboard: false} : 'hide');
     });
+  }]);
+
+  app.factory('ThemeService', function() {
+    var dark = ObjectStorage.load('darkMode') === true;
+    var service = {
+      dark: dark,
+      toggle: function() {
+        service.dark = !service.dark;
+        ObjectStorage.save('darkMode', service.dark);
+        document.documentElement.classList.toggle('dark-mode', service.dark);
+        if (typeof detector !== 'undefined' && detector.setTheme) {
+          detector.setTheme(service.dark);
+        }
+      }
+    };
+    // The inline snippet in <head> already applied the class before first
+    // paint (to avoid a flash); make sure the diagram matches it too.
+    if (typeof detector !== 'undefined' && detector.setTheme) {
+      detector.setTheme(service.dark);
+    }
+    return service;
+  });
+
+  app.controller('ThemeController', ['ThemeService', function(ThemeService) {
+    this.toggle = ThemeService.toggle;
+    Object.defineProperty(this, 'dark', { get: function() { return ThemeService.dark; } });
+  }]);
+
+  // Tracks the player's personal-best numbers across restarts (a restart
+  // wipes lab/research/worker state via clearProgress(), but deliberately
+  // keeps this key). Not a global/shared leaderboard - there's no backend
+  // here, just a local record of your own best runs.
+  app.factory('ScoreboardService', function() {
+    var records = ObjectStorage.load('scoreboard') || {
+      citations: 0,
+      compute: 0,
+      funding: 0,
+      clicks: 0,
+      achievements: 0,
+      updatedAt: null
+    };
+    var save = function() {
+      records.updatedAt = new Date().getTime();
+      ObjectStorage.save('scoreboard', records);
+    };
+    return {
+      records: records,
+      update: function(unlockedAchievements) {
+        var changed = false;
+        if (lab.state.reputation > records.citations) { records.citations = lab.state.reputation; changed = true; }
+        if (lab.state.dataCollected > records.compute) { records.compute = lab.state.dataCollected; changed = true; }
+        if (lab.state.moneyCollected > records.funding) { records.funding = lab.state.moneyCollected; changed = true; }
+        if (lab.state.clicks > records.clicks) { records.clicks = lab.state.clicks; changed = true; }
+        if (unlockedAchievements > records.achievements) { records.achievements = unlockedAchievements; changed = true; }
+        if (changed) {
+          save();
+        }
+      },
+      reset: function() {
+        records.citations = 0;
+        records.compute = 0;
+        records.funding = 0;
+        records.clicks = 0;
+        records.achievements = 0;
+        records.updatedAt = null;
+        ObjectStorage.save('scoreboard', records);
+      }
+    };
+  });
+
+  app.controller('ScoreboardController',
+      ['$scope', '$interval', 'ScoreboardService', function($scope, $interval, ScoreboardService) {
+    $scope.records = ScoreboardService.records;
+    $scope.totalAchievements = achievements.length;
+    $scope.resetScoreboard = function() {
+      if (window.confirm('Reset your personal-best scoreboard? This cannot be undone.')) {
+        ScoreboardService.reset();
+      }
+    };
+    var tick = function() {
+      var unlocked = achievements.filter(function(a) {
+        return a.validate(lab, allObjects, lastSaved);
+      }).length;
+      ScoreboardService.update(unlocked);
+    };
+    tick();
+    $interval(tick, 5000);
   }]);
 
   analytics.init();

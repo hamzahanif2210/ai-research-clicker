@@ -13,6 +13,18 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+
+    <!-- Apply the saved theme before first paint, to avoid a light-mode flash. -->
+    <script>
+      (function() {
+        try {
+          if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.className += ' dark-mode';
+          }
+        } catch (e) {}
+      })();
+    </script>
     
     <link rel="icon" type="image/png" href="assets/favicon.png" />
     <link rel="apple-touch-icon" href="assets/mobile/icon.png">
@@ -58,7 +70,9 @@
             </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="https://github.com/particle-clicker/particle-clicker/" target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
+            <li ng-controller="ThemeController as tc"><a href="#" ng-click="tc.toggle()"><i class="fa" ng-class="tc.dark ? 'fa-sun-o' : 'fa-moon-o'"></i> <span ng-cloak>{{ tc.dark ? 'Light' : 'Dark' }} mode</span></a></li>
+            <li><a href="#" data-toggle="modal" data-target="#scoreboard-modal"><i class="fa fa-list-ol"></i> Scoreboard</a></li>
+            <li><a href="https://github.com/hamzahanif2210/ai-research-clicker" target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-share-alt"></i> Social<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -84,8 +98,8 @@
             <div id="researchContent" ng-controller="ResearchController as rc">
               <ul class="media-list" ng-cloak>
                 <li class="media" ng-repeat="r in rc.research" ng-show="rc.isVisible(r)">
-                  <img ng-show="r.state.level > 0" class="research-icon media-object" ng-src="{{ r.image }}" alt="">
-                  <img ng-hide="r.state.level > 0" class="research-icon media-object" src="assets/icons/png/unknown.png" alt="">
+                  <img ng-show="r.state.level > 0" class="research-icon media-object" ng-src="{{ rc.icon(r.image) }}" alt="">
+                  <img ng-hide="r.state.level > 0" class="research-icon media-object" ng-src="{{ rc.icon('assets/icons/png/unknown.png') }}" alt="">
                   <div class="media-body">
                     <h4 class="media-heading">{{ r.state.level > 0 ? r.name : '?????' }} <span ng-show="r.state.level > 0" class="badge">Level {{ r.state.level }}</span></h4>
                     <p ng-show="r.state.level > 0">{{ r.description }}</p>
@@ -255,6 +269,31 @@
       </div>
     </div>
 
+    <div class="modal fade" id="scoreboard-modal" tabindex="-1" role="dialog" aria-labelledby="scoreboard-label" aria-hidden="true" ng-controller="ScoreboardController">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="scoreboard-label"><i class="fa fa-list-ol"></i> Scoreboard</h4>
+          </div>
+          <div class="modal-body">
+            <p class="small">Your personal best, kept even if you restart the lab.</p>
+            <ul class="list-group">
+              <li class="list-group-item"><i class="fa fa-quote-right"></i> Best citations: <strong>{{ records.citations | niceNumber }}</strong></li>
+              <li class="list-group-item"><i class="fa fa-microchip"></i> Most compute collected: <strong>{{ records.compute | niceNumber }}</strong></li>
+              <li class="list-group-item"><i class="fa fa-money"></i> Most funding gathered: <strong>{{ records.funding | currency }}</strong></li>
+              <li class="list-group-item"><i class="fa fa-mouse-pointer"></i> Most clicks: <strong>{{ records.clicks | niceNumber }}</strong></li>
+              <li class="list-group-item"><i class="fa fa-trophy"></i> Achievements unlocked: <strong>{{ records.achievements }}</strong> / {{ totalAchievements }}</li>
+            </ul>
+            <p class="small" ng-show="records.updatedAt">Last updated {{ records.updatedAt | date : 'medium' }}.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" ng-click="resetScoreboard()"><i class="fa fa-eraser"></i> Reset scoreboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="achievements-container" class="col-xs-6 col-sm-3"></div>
     <div id="messages-container" class="col-xs-6 col-sm-3"></div>
 
@@ -274,7 +313,7 @@
           <div class="modal-body">
             <h4>About</h4>
             <p class="small">Version: 0.9</p>
-            <p class="small bg-warning">This is a pre-release. If you encounter any bugs please report them using <a href="https://github.com/particle-clicker/particle-clicker/issues"><i class="fa fa-github"></i> GitHub issues</a>. This game runs best in landscape mode. Performance of the event display may rely heavily on your hardware.</p>
+            <p class="small bg-warning">This is a pre-release. If you encounter any bugs please report them using <a href="https://github.com/hamzahanif2210/ai-research-clicker/issues"><i class="fa fa-github"></i> GitHub issues</a>. This game runs best in landscape mode. Performance of the event display may rely heavily on your hardware.</p>
             <p>AI Research Clicker is a CS/ML-themed educational fork of <a href="https://github.com/particle-clicker/particle-clicker">Particle Clicker</a>, a game originally made during the <a href="https://webfest.web.cern.ch">CERN Webfest 2014</a>. This fork reskins the same game engine around the history of artificial intelligence and machine learning research, and was adapted as an educational resource for NeurIPS. The idea for the original game was borrowed from <a href="http://orteil.dashnet.org/cookieclicker/">Cookie Clicker</a>, an amazing and addictive cookie-themed game.</p>
             <h5>Libraries</h5>
             <p>This game is realised using a few libraries. Those are</p>
@@ -296,7 +335,7 @@
             </ul>
             <p>Feel free to get in touch with us via GitHub or by shooting us an email on<br><a href="mailto:particle-clicker@googlegroups.com">particle-clicker@googlegroups.com</a>.</p>
             <h5>Source</h5>
-            <p>The source code of this game is freely available on <a href="https://github.com/particle-clicker/particle-clicker"><i class="fa fa-github"></i> GitHub</a> under the terms of an MIT license.</p>
+            <p>The source code of this game is freely available on <a href="https://github.com/hamzahanif2210/ai-research-clicker"><i class="fa fa-github"></i> GitHub</a> under the terms of an MIT license.</p>
           </div>
         </div>
       </div>
@@ -348,6 +387,7 @@
                   <option value="USD">US Dollar ($)</option>
                   <option value="EUR">Euro (€)</option>
                   <option value="GBP">British Pound (£)</option>
+                  <option value="PKR">Pakistani Rupee (₨)</option>
                   <option value="JPY">Japanese Yen (¥)</option>
                   <option value="INR">Indian Rupee (₹)</option>
                   <option value="CNY">Chinese Yuan (¥)</option>

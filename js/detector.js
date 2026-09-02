@@ -20,15 +20,49 @@ var detector =
 
     ratio: 1,
 
-    // Palette for the network diagram: cool neutrals for the scaffold,
-    // three signal colors for the pulses fired on each click.
+    // Palette for the network diagram scaffold - a light and a dark variant,
+    // switched by setTheme() to match the rest of the page.
+    themes:
+    {
+        light:
+        {
+            background: '#f4f0e6',
+            edge: '#ded8c6',
+            nodeFill: '#ffffff',
+            nodeStroke: '#8a8f6b'
+        },
+        dark:
+        {
+            background: '#12141c',
+            edge: '#2a2f40',
+            nodeFill: '#1b1e2a',
+            nodeStroke: '#4a5170'
+        }
+    },
+
+    // Active palette, swapped in place by setTheme() - starts dark to match
+    // the pre-paint default until ThemeService applies the real setting.
     colors:
     {
         background: '#12141c',
         edge: '#2a2f40',
         nodeFill: '#1b1e2a',
-        nodeStroke: '#4a5170',
-        nodeGlow: '#6e7699'
+        nodeStroke: '#4a5170'
+    },
+
+    // Switches the diagram's palette to match light/dark mode and redraws
+    // the static scaffold (nodes + idle edges). Safe to call before init().
+    setTheme: function(isDark)
+    {
+        var theme = isDark ? detector.themes.dark : detector.themes.light;
+        detector.colors.background = theme.background;
+        detector.colors.edge = theme.edge;
+        detector.colors.nodeFill = theme.nodeFill;
+        detector.colors.nodeStroke = theme.nodeStroke;
+
+        if (detector.core.ctx) {
+            detector.coreDraw();
+        }
     },
 
     // Node layout, computed in coreDraw() from detector.width/height.
