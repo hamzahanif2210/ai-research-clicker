@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="particleClicker">
   <head>
-    <title>Particle Clicker</title>
+    <title>AI Research Clicker</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta property="og:title" content="Particle Clicker">
+    <meta property="og:title" content="AI Research Clicker">
     <meta property="og:type" content="game">
-    <meta property="og:description" content="An addictive incremental game that was made during the CERN Webfest 2014. It takes the player on a historic journey through modern particle physics.">
+    <meta property="og:description" content="An addictive incremental game adapted for NeurIPS educational resources. It takes the player on a historic journey through modern AI and machine learning research.">
     <meta property="og:image" content="https://avatars2.githubusercontent.com/u/8345868">
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -38,7 +38,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand pc-icon" href="#" data-toggle="modal" data-target="#myModal"> Particle Clicker</a>
+          <a class="navbar-brand pc-icon" href="#" data-toggle="modal" data-target="#myModal"> AI Research Clicker</a>
         </div>
         <div class="collapse navbar-collapse" id="navbar-collapse">
           <ul class="nav navbar-nav navbar-left">
@@ -53,6 +53,9 @@
               </ul>
             </li>
             <!--<li><a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-users"></i> About</a></li>-->
+            <li class="navbar-text" ng-controller="ProfileBadgeController as pc" ng-show="pc.profile.nickname" ng-cloak>
+              <i class="fa fa-user"></i> {{ pc.profile.nickname }}<span ng-show="pc.profile.country"> &middot; {{ pc.profile.country }}</span>
+            </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="https://github.com/particle-clicker/particle-clicker/" target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
@@ -86,9 +89,9 @@
                   <div class="media-body">
                     <h4 class="media-heading">{{ r.state.level > 0 ? r.name : '?????' }} <span ng-show="r.state.level > 0" class="badge">Level {{ r.state.level }}</span></h4>
                     <p ng-show="r.state.level > 0">{{ r.description }}</p>
-                    <p ng-show="r.state.level > 0" class="small">Research yields <strong>{{ r.state.reputation | niceNumber }}</strong> reputation.</p>
+                    <p ng-show="r.state.level > 0" class="small">Research yields <strong>{{ r.state.reputation | niceNumber }}</strong> citations.</p>
                     <div class="btn-group">
-                      <button class="btn btn-primary" ng-disabled="!rc.isAvailable(r)" ng-click="rc.doResearch(r)"><i class="fa fa-cogs"></i> <small>{{ r.state.cost | niceNumber }} data</small></button>
+                      <button class="btn btn-primary" ng-disabled="!rc.isAvailable(r)" ng-click="rc.doResearch(r)"><i class="fa fa-cogs"></i> <small>{{ r.state.cost | niceNumber }} compute</small></button>
                     <button class="btn btn-info {{ r.state.interesting ? 'blink' : '' }}" ng-show="r.state.level > 0" ng-click="rc.showInfo(r)"><i class="fa {{ r.state.interesting ? 'fa-exclamation' : 'fa-info' }}"></i></button>
                   </div>
                   </div>
@@ -105,22 +108,22 @@
         <div id="detector-holder">
           <div id="detector" ng-controller="DetectorController as dc">
             <canvas id="detector-core" width="400" height="400">
-              Your detector. Click on it to generate events.
+              Your training run. Click to generate events.
             </canvas>
             <canvas ng-click="dc.click()" id="detector-events" width="400" height="400" class="prevent-select">
-              Your detector. Click on it to generate events.
+              Your training run. Click to generate events.
             </canvas>
           </div>
         </div>
         <button id="detector-info" class="btn btn-info" ng-click="lc.showDetectorInfo()"><i class="fa fa-info"></i></button>
         <div class="row status" ng-cloak>
           <div class="col-xs-4 text-center col-no-padding-xs">
-            <strong>Data</strong><br>
+            <strong>Compute</strong><br>
             {{ lc.lab.state.data | niceNumber }}
             <div class="update-value" id="update-data"></div>
           </div>
           <div class="col-xs-4 text-center col-no-padding-xs">
-            <strong>Reputation</strong><br>
+            <strong>Citations</strong><br>
             {{ lc.lab.state.reputation | niceNumber }}
             <div class="update-value" id="update-reputation"></div>
           </div>
@@ -146,7 +149,7 @@
                   <div class="media-body">
                     <h4 class="media-heading">{{ w.name }} <span ng-show="w.state.hired > 0" class="badge">{{ w.state.hired | niceNumber }}</span></h4>
                     <p ng-show="w.state.hired > 0">{{ w.description }}</p>
-                    <p ng-show="w.state.hired > 0" class="small">Produce <strong>{{ w.state.rate | niceNumber }}</strong> data per second.</p>
+                    <p ng-show="w.state.hired > 0" class="small">Produce <strong>{{ w.state.rate | niceNumber }}</strong> compute per second.</p>
                     <button class="btn btn-primary" ng-disabled="!hrc.isAvailable(w)" ng-click="hrc.hire(w)"><i class="fa fa-user"></i> <small>{{ w.state.cost | currency }}</small></button>
                   </div>
                 </li>
@@ -257,7 +260,7 @@
 
     <div id="mobile-orientation-container">
       <div id="mobile-orientation-message">
-        You can only play Particle Clicker on your mobile device in landscape orientation.
+        You can only play AI Research Clicker on your mobile device in landscape orientation.
       </div>
     </div>
 
@@ -266,13 +269,13 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <h4 class="modal-title" id="myModalLabel">Particle Clicker</h4>
+            <h4 class="modal-title" id="myModalLabel">AI Research Clicker</h4>
           </div>
           <div class="modal-body">
             <h4>About</h4>
             <p class="small">Version: 0.9</p>
             <p class="small bg-warning">This is a pre-release. If you encounter any bugs please report them using <a href="https://github.com/particle-clicker/particle-clicker/issues"><i class="fa fa-github"></i> GitHub issues</a>. This game runs best in landscape mode. Performance of the event display may rely heavily on your hardware.</p>
-            <p>Particle Clicker is a game that was made during the <a href="https://webfest.web.cern.ch">CERN Webfest 2014</a>. The idea is borrowed from <a href="http://orteil.dashnet.org/cookieclicker/">Cookie Clicker</a>, an amazing and addictive cookie-themed game.</p>
+            <p>AI Research Clicker is a CS/ML-themed educational fork of <a href="https://github.com/particle-clicker/particle-clicker">Particle Clicker</a>, a game originally made during the <a href="https://webfest.web.cern.ch">CERN Webfest 2014</a>. This fork reskins the same game engine around the history of artificial intelligence and machine learning research, and was adapted as an educational resource for NeurIPS. The idea for the original game was borrowed from <a href="http://orteil.dashnet.org/cookieclicker/">Cookie Clicker</a>, an amazing and addictive cookie-themed game.</p>
             <h5>Libraries</h5>
             <p>This game is realised using a few libraries. Those are</p>
             <ul>
@@ -295,6 +298,66 @@
             <h5>Source</h5>
             <p>The source code of this game is freely available on <a href="https://github.com/particle-clicker/particle-clicker"><i class="fa fa-github"></i> GitHub</a> under the terms of an MIT license.</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="continue-modal" tabindex="-1" role="dialog" aria-labelledby="continueModalLabel" data-backdrop="static" data-keyboard="false" ng-controller="ContinueController as cc">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="continueModalLabel"><i class="fa fa-flask"></i> Welcome back<span ng-show="cc.profile.nickname">, {{ cc.profile.nickname }}</span></h4>
+          </div>
+          <div class="modal-body">
+            <p ng-show="cc.profile.labName">We found a saved run for <strong>{{ cc.profile.labName }}</strong>. Pick up where you left off, or start a new lab from scratch.</p>
+            <p ng-hide="cc.profile.labName">We found progress from a previous session. Pick up where you left off, or start a new lab from scratch.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" ng-click="cc.restart()"><i class="fa fa-refresh"></i> Start from the beginning</button>
+            <button type="button" class="btn btn-primary" ng-click="cc.continueGame()"><i class="fa fa-play"></i> Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="profile-modal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" data-backdrop="static" data-keyboard="false" ng-controller="ProfileController as pc">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="profileModalLabel"><i class="fa fa-flask"></i> Welcome to AI Research Clicker</h4>
+          </div>
+          <form name="profileForm" ng-submit="pc.save()">
+            <div class="modal-body">
+              <p class="small">Before you start your first training run, tell us a bit about your lab.</p>
+              <div class="form-group">
+                <label for="profile-nickname">Your nickname</label>
+                <input type="text" class="form-control" id="profile-nickname" ng-model="pc.profile.nickname" placeholder="e.g. Ada" required maxlength="30">
+              </div>
+              <div class="form-group">
+                <label for="profile-labname">Lab name</label>
+                <input type="text" class="form-control" id="profile-labname" ng-model="pc.profile.labName" placeholder="e.g. Turing Lab" required maxlength="40">
+              </div>
+              <div class="form-group">
+                <label for="profile-country">Country</label>
+                <input type="text" class="form-control" id="profile-country" ng-model="pc.profile.country" placeholder="e.g. Canada" required maxlength="40">
+              </div>
+              <div class="form-group">
+                <label for="profile-currency">Funding currency</label>
+                <select class="form-control" id="profile-currency" ng-model="pc.profile.currency">
+                  <option value="GC">Grant Credits (GC)</option>
+                  <option value="USD">US Dollar ($)</option>
+                  <option value="EUR">Euro (€)</option>
+                  <option value="GBP">British Pound (£)</option>
+                  <option value="JPY">Japanese Yen (¥)</option>
+                  <option value="INR">Indian Rupee (₹)</option>
+                  <option value="CNY">Chinese Yuan (¥)</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary" ng-disabled="profileForm.$invalid"><i class="fa fa-rocket"></i> Start Research</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

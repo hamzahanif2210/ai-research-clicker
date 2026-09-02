@@ -1,34 +1,46 @@
-function ParticleEvent(type, count, external)
+// A single signal pulse fired between two nodes of the network diagram -
+// a stand-in for what used to be a particle track through the detector.
+// `external` marks pulses generated passively by hired workers (drawn
+// fainter) rather than by the player's own click.
+function ParticleEvent(type, external)
 {
     this.work = typeof external !== 'undefined' ? external : false;
     this.type = type;
-    this.length = 0;
-    this.radius = 0;
-    this.direction = 0;
-    this.sign = (Math.random() - 0.5 >= 0) ? 1 : -1;
     this.alpha = this.work ? 0.5 : 1;
-    this.count = count;
 
-    switch (this.type.name)
-    {
-        case 'electron':
-            this.length = detector.radius.siliconSpace * detector.ratio + Math.round((detector.radius.ecal * detector.ratio + 10 - detector.radius.siliconSpace * detector.ratio) * Math.random());
-            this.direction = Math.random() * Math.PI * 2;
-            this.radius = 20 + Math.round((100 - 20) * Math.random());
-            break;
-        case 'jet':
-            this.length = detector.radius.ecal * detector.ratio + Math.round((detector.radius.mucal * detector.ratio - detector.radius.ecal * detector.ratio) * Math.random());
-            this.direction = Math.random() * Math.PI * 2;
-            this.radius = 40 + Math.round((200 - 40) * Math.random());
-            break;
-        case 'muon':
-            this.length = detector.radius.mucal * detector.ratio + 3 * detector.radius.mucalDark * detector.ratio + Math.round((4 * detector.radius.mucalLight * detector.ratio + 2 * detector.radius.mucalDark * detector.ratio) * Math.random());
-            this.direction = Math.random() * Math.PI * 2;
-            this.radius = 200 + Math.round((600 - 200) * Math.random());
-            break;
-    }
+    var layerCount = detector.layers.length;
+    var fromLayer = Math.floor(Math.random() * (layerCount - 1));
+    var toLayer = fromLayer + 1;
+
+    var fromNodes = detector.layers[fromLayer];
+    var toNodes = detector.layers[toLayer];
+
+    this.from = fromNodes[Math.floor(Math.random() * fromNodes.length)];
+    this.to = toNodes[Math.floor(Math.random() * toNodes.length)];
+
+    // Bow the connecting line into a gentle arc so overlapping pulses
+    // between the same two nodes stay visually distinct.
+    var midX = (this.from.x + this.to.x) / 2;
+    var midY = (this.from.y + this.to.y) / 2;
+    var dx = this.to.x - this.from.x;
+    var dy = this.to.y - this.from.y;
+    var bow = (Math.random() - 0.5) * 0.6;
+    this.controlX = midX - dy * bow;
+    this.controlY = midY + dx * bow;
+
+    // 0 -> 1 progress of the pulse traveling from source to target node.
+    this.progress = 0;
 
     this.draw(16, true);
+};
+
+ParticleEvent.prototype.pointAt = function(t)
+{
+    var mt = 1 - t;
+    return {
+        x: mt * mt * this.from.x + 2 * mt * t * this.controlX + t * t * this.to.x,
+        y: mt * mt * this.from.y + 2 * mt * t * this.controlY + t * t * this.to.y
+    };
 };
 
 ParticleEvent.prototype.draw = function(duration, init)
@@ -36,28 +48,37 @@ ParticleEvent.prototype.draw = function(duration, init)
     init = typeof init !== 'undefined' ? init : false;
 
     var ctx = detector.events.ctx;
-    var cx = detector.width / 2;
-    var cy = detector.height / 2;
-
-    ctx.save();
-
-    ctx.globalAlpha = this.alpha;
-    ctx.strokeStyle = this.type.color;
-    ctx.fillStyle = this.type.color;
-    ctx.lineWidth = 2;
-
-    ctx.translate(cx, cy);
-    ctx.rotate(this.direction);
-    ctx.translate(-cx, -cy);
-
-    ctx.beginPath();
-    ctx.arc(cx + this.length / 2, cy + this.sign * Math.round(Math.sqrt(Math.abs(this.radius * this.radius - this.length * this.length / 4))), this.radius, - this.sign * Math.PI / 2 - Math.asin(this.length / (2 * this.radius)), - this.sign * Math.PI / 2 +  Math.asin(this.length / (2 * this.radius)), false);
-    ctx.stroke();
-
-    ctx.restore();
+    var nodeRadius = 6 * detector.ratio;
 
     if (!init) {
-        this.alpha -= 0.03 / 16 * duration;
+        this.progress = Math.min(1, this.progress + 0.09 / 16 * duration);
+        this.alpha -= 0.02 / 16 * duration;
     }
-};
 
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.strokeStyle = this.type.color;
+    ctx.fillStyle = this.type.color;
+    ctx.lineWidth = 2 * detector.ratio;
+
+    // The traveled part of the edge, fading in as the pulse advances.
+    ctx.beginPath();
+    ctx.moveTo(this.from.x, this.from.y);
+    var head = this.pointAt(this.progress);
+    // Approximate the quadratic curve up to `progress` with a short run of
+    // segments so the partial path still bows the same way as the full one.
+    var steps = 12;
+    for (var i = 1; i <= steps; i++) {
+        var t = this.progress * i / steps;
+        var p = this.pointAt(t);
+        ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+
+    // The pulse head itself.
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, nodeRadius * 0.6, 0, Math.PI * 2, true);
+    ctx.fill();
+
+    ctx.restore();
+};

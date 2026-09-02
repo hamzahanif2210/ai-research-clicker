@@ -1,145 +1,178 @@
 [
   {
-    "key": "research-cpv",
-    "name": "CP violation",
-    "description": "CP symmetry is broken!",
+    "key": "research-perceptron",
+    "name": "The Perceptron",
+    "description": "Rosenblatt's single-layer network \u2014 the first machine that could learn from examples.",
     "cost_increase": 1.8,
-    "image": "assets/icons/png/CPV.png",
-    "info": "html/CPV.html",
+    "image": "assets/icons/png/perceptron.png",
+    "info": "html/perceptron.html",
     "state": {
-      "reputation": 1e0,
-      "cost": 1e1,
-      "info_levels": [ 1, 5, 10, 15, 20 ]
+      "reputation": 1.0,
+      "cost": 10.0,
+      "info_levels": [
+        1,
+        5,
+        10,
+        15,
+        20
+      ]
     }
   },
   {
-    "key": "research-jpsi",
-    "name": "J/ψ",
-    "description": "The J/ψ meson consists of a c and an anti-c quark.",
+    "key": "research-backprop",
+    "name": "Backpropagation",
+    "description": "The chain-rule algorithm that lets errors flow backward through a network to update its weights.",
     "cost_increase": 1.7,
-    "image": "assets/icons/png/Jpsi.png",
-    "info": "html/Jpsi.html",
+    "image": "assets/icons/png/backprop.png",
+    "info": "html/backprop.html",
     "state": {
-      "reputation": 6e0,
-      "cost": 4e2,
-      "info_levels": [ 1, 5 ]
+      "reputation": 6.0,
+      "cost": 400.0,
+      "info_levels": [
+        1,
+        5
+      ]
     }
   },
   {
-    "key": "research-tau",
-    "name": "τ lepton",
-    "description": "The third generation charged lepton.",
+    "key": "research-cnn",
+    "name": "Convolutional Neural Networks",
+    "description": "LeCun's LeNet taught networks to see, sliding small filters across pixels to find edges, shapes, digits.",
     "cost_increase": 1.6,
-    "image": "assets/icons/png/tau.png",
-    "info": "html/tau.html",
+    "image": "assets/icons/png/cnn.png",
+    "info": "html/cnn.html",
     "state": {
-      "reputation": 3.3e1,
-      "cost": 1e4,
-      "info_levels": [ 1, 5 ]
+      "reputation": 33.0,
+      "cost": 10000.0,
+      "info_levels": [
+        1,
+        5
+      ]
     }
   },
   {
-    "key": "research-beauty",
-    "name": "Beauty quark",
-    "description": "The third generation down-type quark.",
+    "key": "research-rnn",
+    "name": "RNNs and LSTMs",
+    "description": "Networks with memory: recurrent connections and the LSTM's gates let models handle sequences.",
     "cost_increase": 1.5,
-    "image": "assets/icons/png/b.png",
-    "info": "html/b.html",
+    "image": "assets/icons/png/rnn.png",
+    "info": "html/rnn.html",
     "state": {
-      "reputation": 1.85e2,
-      "cost": 2e5,
-      "info_levels": [ 1, 5 ]
+      "reputation": 185.0,
+      "cost": 200000.0,
+      "info_levels": [
+        1,
+        5
+      ]
     }
   },
-    {
-    "key": "research-gluons",
-    "name": "Gluons",
-    "description": "8 almost identical elementary particles that convey the strong force.",
+  {
+    "key": "research-svm",
+    "name": "Support Vector Machines",
+    "description": "A geometric approach to classification: find the widest possible margin between classes.",
     "cost_increase": 1.4,
-    "image": "assets/icons/png/gluons.png",
-    "info": "html/gluons.html",
+    "image": "assets/icons/png/svm.png",
+    "info": "html/svm.html",
     "state": {
-      "reputation": 1e3,
-      "cost": 3e6,
-      "info_levels": [ 1 ]
+      "reputation": 1000.0,
+      "cost": 3000000.0,
+      "info_levels": [
+        1
+      ]
     }
   },
   {
-    "key": "research-weak",
-    "name": "W and Z boson",
-    "description": "The carriers of the weak force.",
+    "key": "research-alexnet",
+    "name": "The ImageNet Moment",
+    "description": "AlexNet crushed the 2012 ImageNet competition, kicking off the deep learning boom.",
     "cost_increase": 1.35,
-    "image": "assets/icons/png/weak.png",
-    "info": "html/weak.html",
+    "image": "assets/icons/png/alexnet.png",
+    "info": "html/alexnet.html",
     "state": {
-      "reputation": 5.4e3,
-      "cost": 3.2e7,
-      "info_levels": [ 1 ]
+      "reputation": 5400.0,
+      "cost": 32000000.0,
+      "info_levels": [
+        1
+      ]
     }
   },
   {
-    "key": "research-top",
-    "name": "Top quark",
-    "description": "The heaviest of the quarks.",
+    "key": "research-word2vec",
+    "name": "Word Embeddings",
+    "description": "word2vec packed word meaning into dense vectors \u2014 king minus man plus woman equals queen.",
     "cost_increase": 1.3,
-    "image": "assets/icons/png/t.png",
-    "info": "html/top.html",
+    "image": "assets/icons/png/word2vec.png",
+    "info": "html/word2vec.html",
     "state": {
-      "reputation": 3e4,
-      "cost": 1.28e8,
-      "info_levels": [ 1 ]
+      "reputation": 30000.0,
+      "cost": 128000000.0,
+      "info_levels": [
+        1
+      ]
     }
   },
   {
-    "key": "research-boscillations",
-    "name": "B oscillation",
-    "description": "B mesons turn into their antiparticles and vice versa!",
+    "key": "research-gan",
+    "name": "Generative Adversarial Networks",
+    "description": "Two networks locked in a contest \u2014 a forger and a detective \u2014 learn to generate strikingly realistic data.",
     "cost_increase": 1.25,
-    "image": "assets/icons/png/BBbar.png",
-    "info": "html/BBbar.html",
+    "image": "assets/icons/png/gan.png",
+    "info": "html/gan.html",
     "state": {
-      "reputation": 1.6e5,
-      "cost": 9e8,
-      "info_levels": [ 1 ]
+      "reputation": 160000.0,
+      "cost": 900000000.0,
+      "info_levels": [
+        1
+      ]
     }
   },
   {
-    "key": "research-higgs",
-    "name": "Higgs boson",
-    "description": "It only took us 48 years to find this one!",
+    "key": "research-attention",
+    "name": "The Attention Mechanism",
+    "description": "Letting a model look back at every input token and weigh what matters most, however far away.",
     "cost_increase": 1.2,
-    "image": "assets/icons/png/H.png",
-    "info": "html/H.html",
+    "image": "assets/icons/png/attention.png",
+    "info": "html/attention.html",
     "state": {
-      "reputation": 9e5,
-      "cost": 5e9,
-      "info_levels": [ 1, 5, 10, 15, 20 ]
+      "reputation": 900000.0,
+      "cost": 5000000000.0,
+      "info_levels": [
+        1,
+        5,
+        10,
+        15,
+        20
+      ]
     }
   },
   {
-    "key": "research-dstars",
-    "name": "D*s⁻",
-    "description": "The first ever observed heavy flavored spin-3 particle.",
+    "key": "research-transformer",
+    "name": "The Transformer",
+    "description": "\"Attention Is All You Need\" \u2014 dropping recurrence entirely reshaped every corner of machine learning.",
     "cost_increase": 1.15,
-    "image": "assets/icons/png/Dstar_s.png",
-    "info": "html/Dstar_s.html",
+    "image": "assets/icons/png/transformer.png",
+    "info": "html/transformer.html",
     "state": {
-      "reputation": 4.75e6,
-      "cost": 2.4e10,
-      "info_levels": [ 1 ]
+      "reputation": 4750000.0,
+      "cost": 24000000000.0,
+      "info_levels": [
+        1
+      ]
     }
   },
   {
-    "key": "research-xib",
-    "name": "Ξb'- and Ξb*-",
-    "description": "Recently discovered strange beauty baryons. Both differ only in their spin configurations.",
+    "key": "research-llm",
+    "name": "Large Language Models",
+    "description": "Scaling transformers to billions of parameters and web-scale data produced fluent, general-purpose foundation models.",
     "cost_increase": 1.15,
-    "image": "assets/icons/png/Xi_b.png",
-    "info": "html/Xi_b.html",
+    "image": "assets/icons/png/llm.png",
+    "info": "html/llm.html",
     "state": {
-      "reputation": 2.5e7,
-      "cost": 9e10,
-      "info_levels": [ 1 ]
+      "reputation": 25000000.0,
+      "cost": 90000000000.0,
+      "info_levels": [
+        1
+      ]
     }
   }
 ]

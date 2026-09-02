@@ -1,7 +1,5 @@
-# Particle Clicker
+# AI Research Clicker
 
-An addictive incremental game that teaches players the history of high energy particle physics.
+An incremental game teaching the history of AI/ML research, adapted from [Particle Clicker](https://github.com/particle-clicker/particle-clicker) (built during the 2014 CERN Webfest) for NeurIPS educational resources.
 
-Developed during the 2014 CERN Webfest over a weekend.
-
-Visit [http://cern.ch/particle-clicker](http://cern.ch/particle-clicker) to play the game.
+Open `index.html` in a browser to play the game.

@@ -20,58 +20,35 @@ var detector =
 
     ratio: 1,
 
-    colors: 
+    // Palette for the network diagram: cool neutrals for the scaffold,
+    // three signal colors for the pulses fired on each click.
+    colors:
     {
-        siliconRing: '#FFF371',
-        siliconRingLine: '#EAC918',
-        ecal: '#C5FF82',
-        ecalLine: '#9EFF28',
-        hcal: '#E1FF79',
-        hcalLine: '#C9FF2D',
-        lightRing: '#A0B3FF',
-        lightRingLine: '#A0B3FF',
-        darkRing: '#7280B8',
-        darkRingLine: '#7280B8',
-
-        mucalLight: '#FFDFB7',
-        mucalLightLine: '#FFDFB7',
-        mucalDark: '#EA301F',
-        mucalDarkLine: '#C5291A'
+        background: '#12141c',
+        edge: '#2a2f40',
+        nodeFill: '#1b1e2a',
+        nodeStroke: '#4a5170',
+        nodeGlow: '#6e7699'
     },
 
-    radius:
-    {
-        siliconInner: 10,
-        silicon: 30,
-        siliconSpace: 35,
-        ecal: 50,
-        hcal: 80,
-        darkRing1: 83,
-        darkRing1Space: 86,
-        lightRing: 92,
-        lightRingSpace: 94,
-        darkRing2: 100,
+    // Node layout, computed in coreDraw() from detector.width/height.
+    layers: [],
 
-        mucal: 107,
-        mucalLight: 8,
-        mucalDark: 18
-    },
-
+    // One entry per node-to-node "signal" a click can send, each with its
+    // own color - stands in for the old electron/jet/muon track types.
     tracks:
     [
         {
-            name: 'electron',
-            color: '#0016EA'
+            name: 'activation',
+            color: '#5B8CFF'
         },
-
         {
-            name: 'jet',
-            color: '#0B7700'
+            name: 'gradient',
+            color: '#2FD3A6'
         },
-        
         {
-            name: 'muon',
-            color: '#775400'
+            name: 'attention',
+            color: '#C06CF2'
         }
     ],
 
@@ -90,7 +67,6 @@ var detector =
     {
         detector.core.canvas = document.getElementById('detector-core');
         detector.core.ctx = detector.core.canvas.getContext('2d');
-        //detector.core.ctx = new C2S(400,400);
 
         detector.events.canvas = document.getElementById('detector-events');
         detector.events.ctx = detector.events.canvas.getContext('2d');
@@ -136,131 +112,79 @@ var detector =
             detector.events.ctx.scale(ratio, ratio);
         }
 
+        detector.layoutLayers();
         detector.coreDraw();
         detector.animate();
+    },
+
+    // How many nodes sit in each layer, input to output.
+    layerSizes: [3, 5, 5, 3],
+
+    // Work out where every node in every layer sits on the canvas, and
+    // remember the positions in detector.layers for both coreDraw() and
+    // event.js to use.
+    layoutLayers: function()
+    {
+        var margin = 46 * detector.ratio;
+        var usableWidth = detector.width - margin * 2;
+        var layerCount = detector.layerSizes.length;
+
+        detector.layers = detector.layerSizes.map(function(size, layerIndex) {
+            var x = margin + (layerCount === 1 ? 0 : usableWidth * layerIndex / (layerCount - 1));
+            var spacing = detector.height / (size + 1);
+
+            var nodes = [];
+            for (var i = 0; i < size; i++) {
+                nodes.push({ x: x, y: spacing * (i + 1) });
+            }
+            return nodes;
+        });
     },
 
     coreDraw: function()
     {
         var ctx = detector.core.ctx;
-        var cx = detector.width / 2;
-        var cy = detector.height / 2;
 
-        ctx.clearRect(0, 0, detector.width, detector.width);
+        ctx.clearRect(0, 0, detector.width, detector.height);
 
-        var muSplit = 2/12;
-        for (var k = 3; k >= 1; k--) {
-            ctx.strokeStyle = detector.colors.mucalDarkLine;
-            ctx.fillStyle = detector.colors.mucalDark;
-            
-            ctx.beginPath();
-            ctx.moveTo(cx + (detector.radius.mucal + k * detector.radius.mucalLight + k * detector.radius.mucalDark) * Math.cos(Math.PI * muSplit) * detector.ratio, cy + (detector.radius.mucal + k * detector.radius.mucalLight + k * detector.radius.mucalDark) * Math.sin(Math.PI * muSplit) * detector.ratio);
-            for (var i = 1; i <= 13; i++) {
-                ctx.lineTo(cx + (detector.radius.mucal + k * detector.radius.mucalLight + k * detector.radius.mucalDark) * Math.cos(Math.PI * i * muSplit) * detector.ratio, cy + (detector.radius.mucal + k * detector.radius.mucalLight + k * detector.radius.mucalDark) * Math.sin(Math.PI * i * muSplit) * detector.ratio);
+        ctx.fillStyle = detector.colors.background;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(0, 0, detector.width, detector.height, 12 * detector.ratio);
+        } else {
+            ctx.rect(0, 0, detector.width, detector.height);
+        }
+        ctx.fill();
+
+        // Idle edges between every pair of nodes in consecutive layers.
+        ctx.strokeStyle = detector.colors.edge;
+        ctx.lineWidth = 1;
+        for (var l = 0; l < detector.layers.length - 1; l++) {
+            var from = detector.layers[l];
+            var to = detector.layers[l + 1];
+            for (var i = 0; i < from.length; i++) {
+                for (var j = 0; j < to.length; j++) {
+                    ctx.beginPath();
+                    ctx.moveTo(from[i].x, from[i].y);
+                    ctx.lineTo(to[j].x, to[j].y);
+                    ctx.stroke();
+                }
             }
-            ctx.stroke();
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(cx + (detector.radius.mucal + k * detector.radius.mucalLight + (k-1) * detector.radius.mucalDark) * Math.cos(Math.PI * muSplit) * detector.ratio, cy + (detector.radius.mucal + k * detector.radius.mucalLight + (k-1) * detector.radius.mucalDark) * Math.sin(Math.PI * muSplit) * detector.ratio);
-            for (var i = 1; i <= 13; i++) {
-                ctx.lineTo(cx + (detector.radius.mucal + k * detector.radius.mucalLight + (k-1) * detector.radius.mucalDark) * Math.cos(Math.PI * i * muSplit) * detector.ratio, cy + (detector.radius.mucal + k * detector.radius.mucalLight + (k-1) * detector.radius.mucalDark) * Math.sin(Math.PI * i * muSplit) * detector.ratio);
-            }
-            ctx.stroke();
-            ctx.fillStyle = detector.colors.mucalLight;
-            ctx.fill();
         }
 
-        ctx.strokeStyle = detector.colors.mucalDarkLine;
-        ctx.beginPath();
-        ctx.moveTo(cx + detector.radius.mucal * Math.cos(Math.PI * muSplit) * detector.ratio, cy + detector.radius.mucal * Math.sin(Math.PI * muSplit) * detector.ratio);
-        for (var i = 1; i <= 13; i++) {
-            ctx.lineTo(cx + detector.radius.mucal * Math.cos(Math.PI * i * muSplit) * detector.ratio, cy + detector.radius.mucal * Math.sin(Math.PI * i * muSplit) * detector.ratio);
-        }
-        ctx.stroke();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fill();
-
-
-        ctx.beginPath();
-        ctx.strokeStyle = detector.colors.darkRingLine;
-        ctx.fillStyle = detector.colors.darkRing;
-        ctx.arc(cx, cy, detector.radius.darkRing2 * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.arc(cx, cy, detector.radius.lightRingSpace * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.strokeStyle = detector.colors.lightRingLine;
-        ctx.fillStyle = detector.colors.lightRing;
-        ctx.arc(cx, cy, detector.radius.lightRing * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.arc(cx, cy, detector.radius.darkRing1Space * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.strokeStyle = detector.colors.darkRingLine
-        ctx.fillStyle = detector.colors.darkRing;
-        ctx.arc(cx, cy, detector.radius.darkRing1 * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.arc(cx, cy, detector.radius.ecal * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-
-
-        ctx.strokeStyle = detector.colors.hcalLine;
-        ctx.fillStyle = detector.colors.hcal;
-        var calSplit = 20/2;
-        for (var i = 0; i < 20; i++) {
-            ctx.beginPath();
-            ctx.moveTo(cx + detector.radius.ecal * Math.cos(Math.PI * i / calSplit) * detector.ratio, cy + detector.radius.ecal * Math.sin(Math.PI * i / calSplit) * detector.ratio);
-            ctx.lineTo(cx + detector.radius.hcal * Math.cos(Math.PI * i / calSplit) * detector.ratio, cy + detector.radius.hcal * Math.sin(Math.PI * i / calSplit) * detector.ratio);
-            ctx.arc(cx, cy, detector.radius.hcal * detector.ratio, Math.PI * i / calSplit, Math.PI * (i+1) / calSplit, false);
-            ctx.lineTo(cx + detector.radius.ecal * Math.cos(Math.PI * (i+1) / calSplit) * detector.ratio, cy + detector.radius.ecal * Math.sin(Math.PI * (i+1) / calSplit) * detector.ratio);
-            ctx.lineTo(cx + detector.radius.ecal * Math.cos(Math.PI * i / calSplit) * detector.ratio, cy + detector.radius.ecal * Math.sin(Math.PI * i / calSplit) * detector.ratio);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        }
-
-        ctx.strokeStyle = detector.colors.ecalLine;
-        ctx.fillStyle = detector.colors.ecal;
-        var calSplit = 20/2;
-        for (var i = 0; i < 20; i++) {
-            ctx.beginPath();
-            ctx.moveTo(cx + detector.radius.siliconSpace * Math.cos(Math.PI * i / calSplit) * detector.ratio, cy + detector.radius.siliconSpace * Math.sin(Math.PI * i / calSplit) * detector.ratio);
-            ctx.lineTo(cx + detector.radius.ecal * Math.cos(Math.PI * i / calSplit) * detector.ratio, cy + detector.radius.ecal * Math.sin(Math.PI * i / calSplit) * detector.ratio);
-            ctx.lineTo(cx + detector.radius.ecal * Math.cos(Math.PI * (i+1) / calSplit) * detector.ratio, cy + detector.radius.ecal * Math.sin(Math.PI * (i+1) / calSplit) * detector.ratio);
-            ctx.lineTo(cx + detector.radius.siliconSpace * Math.cos(Math.PI * (i+1) / calSplit) * detector.ratio, cy + detector.radius.siliconSpace * Math.sin(Math.PI * (i+1) / calSplit) * detector.ratio);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        }
-
-        ctx.beginPath();
-        ctx.strokeStyle = detector.colors.siliconRingLine;
-        ctx.fillStyle = detector.colors.siliconRing;
-        ctx.arc(cx, cy, detector.radius.silicon * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.strokeStyle = detector.colors.siliconRingLine;
-        ctx.fillStyle = detector.colors.siliconRing;
-        ctx.arc(cx, cy, detector.radius.siliconInner * detector.ratio, 0, Math.PI * 2, true);
-        ctx.fill();
-        ctx.stroke();
+        // Nodes on top of the edges.
+        var nodeRadius = 6 * detector.ratio;
+        ctx.lineWidth = 2;
+        detector.layers.forEach(function(layer) {
+            layer.forEach(function(node) {
+                ctx.beginPath();
+                ctx.fillStyle = detector.colors.nodeFill;
+                ctx.strokeStyle = detector.colors.nodeStroke;
+                ctx.arc(node.x, node.y, nodeRadius, 0, Math.PI * 2, true);
+                ctx.fill();
+                ctx.stroke();
+            });
+        });
     },
 
     addEvent: function()
@@ -269,7 +193,7 @@ var detector =
 
         for (var i = 0; i < num; i++) {
             var index = Math.round(Math.random() * (detector.tracks.length - 1));
-            var event = new ParticleEvent(detector.tracks[index], num);
+            var event = new ParticleEvent(detector.tracks[index]);
             detector.events.list.push(event);
         }
     },
@@ -284,7 +208,7 @@ var detector =
 
         for (var i = 0; i < num; i++) {
             var index = Math.round(Math.random() * (detector.tracks.length - 1));
-            var event = new ParticleEvent(detector.tracks[index], num, true);
+            var event = new ParticleEvent(detector.tracks[index], true);
             detector.events.list.push(event);
         }
     },
@@ -309,11 +233,11 @@ var detector =
 };
 
 window.requestAnimFrame = (function(){
-    return window.requestAnimationFrame       || 
-           window.webkitRequestAnimationFrame || 
-           window.mozRequestAnimationFrame    || 
-           window.oRequestAnimationFrame      || 
-           window.msRequestAnimationFrame     || 
+    return window.requestAnimationFrame       ||
+           window.webkitRequestAnimationFrame ||
+           window.mozRequestAnimationFrame    ||
+           window.oRequestAnimationFrame      ||
+           window.msRequestAnimationFrame     ||
            function(/* function */ callback, /* DOMElement */ element){
                window.setTimeout(callback, 1000 / 60);
            };

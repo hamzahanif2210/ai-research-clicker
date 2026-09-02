@@ -7,7 +7,7 @@ var analytics =
         main: 'Main screen',
         about: 'About',
         achievements: 'Achievements',
-        info: 'Physics information'
+        info: 'Research information'
     },
 
     events:
@@ -29,7 +29,7 @@ var analytics =
         }
         
         ga('create', Helpers.analytics);
-        ga('set', { 'appName': 'Particle Clicker', 'appId': 'ch.cern.particle-clicker', 'appVersion': '0.9' });
+        ga('set', { 'appName': 'AI Research Clicker', 'appId': 'ch.cern.particle-clicker', 'appVersion': '0.9' });
         ga('set', 'anonymizeIp', true);
 
 

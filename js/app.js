@@ -25,7 +25,8 @@
 
   app.filter('currency', ['$filter', function($filter) {
     return function(input) {
-      return 'JTN ' + $filter('niceNumber')(input);
+      var code = (ObjectStorage.load('profile') || {}).currency || 'GC';
+      return code + ' ' + $filter('niceNumber')(input);
     };
   }]);
 
@@ -158,6 +159,78 @@
   app.controller('StatsController', function($scope) {
     $scope.lab = lab;
   });
+
+  app.factory('profileService', function() {
+    var saved = ObjectStorage.load('profile');
+    // A returning player is anyone who has either a saved profile or any
+    // progress recorded against a game object (hired workers, research
+    // levels, etc.) - covers the edge case where they closed the tab right
+    // after onboarding but before the profile itself got a chance to save.
+    var hasProgress = saved || Object.keys(allObjects).some(function(key) {
+      var state = ObjectStorage.load(key);
+      return state && (state.hired > 0 || state.level > 0 || state.used > 0 || state.data > 0);
+    });
+    return {
+      profile: saved || {
+        nickname: '',
+        labName: lab.state.name,
+        country: '',
+        currency: 'GC'
+      },
+      isNew: !saved,
+      // Shown first, ahead of the profile modal, only for returning players.
+      showContinue: !!hasProgress
+    };
+  });
+
+  // Controls the profile setup modal itself. Only ever attached to that
+  // one element, so it's the single source of truth for showing/hiding it.
+  app.controller('ProfileController', ['profileService', '$scope', function(profileService, $scope) {
+    this.profile = profileService.profile;
+    this.save = function() {
+      if (this.profile.labName) {
+        lab.state.name = this.profile.labName;
+      }
+      ObjectStorage.save('profile', this.profile);
+      profileService.isNew = false;
+    };
+    $scope.$watch(function() {
+      return profileService.isNew || profileService.showContinue;
+    }, function(shouldHide) {
+      if (profileService.showContinue) {
+        return;  // wait for the continue/restart choice first
+      }
+      $('#profile-modal').modal(profileService.isNew ? {show: true, backdrop: 'static', keyboard: false} : 'hide');
+    });
+  }]);
+
+  // Read-only view of the profile, safe to reuse anywhere (e.g. the navbar
+  // badge) without re-triggering the setup modal.
+  app.controller('ProfileBadgeController', ['profileService', function(profileService) {
+    this.profile = profileService.profile;
+  }]);
+
+  // Controls the "welcome back" continue/restart modal shown to returning
+  // players before anything else.
+  app.controller('ContinueController', ['profileService', '$scope', function(profileService, $scope) {
+    this.profile = profileService.profile;
+    this.continueGame = function() {
+      profileService.showContinue = false;
+    };
+    this.restart = function() {
+      if (window.confirm(
+        'Do you really want to restart? All progress will be lost.'
+      )) {
+        ObjectStorage.clear();
+        window.location.reload(true);
+      }
+    };
+    $scope.$watch(function() {
+      return profileService.showContinue;
+    }, function(show) {
+      $('#continue-modal').modal(show ? {show: true, backdrop: 'static', keyboard: false} : 'hide');
+    });
+  }]);
 
   analytics.init();
   analytics.sendScreen(analytics.screens.main);
